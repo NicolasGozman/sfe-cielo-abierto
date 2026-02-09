@@ -14,21 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('planet-hero').innerText = `${data.planet.name} → ${data.planet.pos}`;
         
         const list = document.getElementById('events-list');
-list.innerHTML = data.events.map(e => {
-    // Volvemos al link original que NO necesita a Python para funcionar
-    const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z&details=${encodeURIComponent(e.desc)}`;
-    
-    return `
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-900 pb-8">
-            <div>
-                <span class="text-blue-500 text-xs font-bold">${e.date}</span>
-                <h2 class="text-4xl font-black uppercase">${e.title}</h2>
-                <p class="text-gray-400">${e.desc}</p>
-            </div>
-            <a href="${googleUrl}" target="_blank" class="calendar-btn mt-4 md:mt-0">+ Google Calendar</a>
-        </div>
-    `;
-}).join('');
+        list.innerHTML = data.events.map(e => {
+            // Construcción del link para Google Calendar
+            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&details=${encodeURIComponent(e.desc)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z`;
+            
+            return `
+                <div class="event-row flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <span style="color: #3b82f6; font-size: 0.7rem; font-weight: bold; letter-spacing: 0.2rem;">${e.date.substring(6,8)} FEB 2026</span>
+                        <h2 style="font-size: clamp(1.5rem, 4vw, 3rem); font-weight: 900; text-transform: uppercase;">${e.title}</h2>
+                        <p style="color: #666; font-size: 1rem;">${e.desc}</p>
+                    </div>
+                    <a href="${googleUrl}" target="_blank" class="calendar-btn mt-4 md:mt-0">
+                        + Google Calendar
+                    </a>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error("Error cargando datos cósmicos");
+    }
+}
     } catch (e) {
         console.error("Error cargando datos cósmicos");
     }
