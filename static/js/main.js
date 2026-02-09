@@ -14,32 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('planet-hero').innerText = `${data.planet.name} → ${data.planet.pos}`;
         
         const list = document.getElementById('events-list');
-        list.innerHTML = data.events.map(e => {
-            // 1. Link para el archivo ICS (Universal / Mobile App)
-            // Agregamos "00" al final para los segundos que pide Python
-            // Dentro de tu .map(e => { ... })
-        const icsUrl = `/api/generate_ics?title=${encodeURIComponent(e.title)}&desc=${encodeURIComponent(e.desc)}&start=${e.date}T${e.time_start}00`;
-            
-            // 2. Link para Google Calendar (Navegador)
-            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&details=${encodeURIComponent(e.desc)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z`;
-            
-            return `
-            <div class="event-row flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
-                    <span style="color: #3b82f6; font-size: 0.7rem; font-weight: bold; letter-spacing: 0.2rem;">${e.date} 2026</span>
-                    <h2 style="font-size: clamp(1.5rem, 4vw, 3rem); font-weight: 900; text-transform: uppercase;">${e.title}</h2>
-                    <p style="color: #666; font-size: 0.9rem;">${e.desc}</p>
-                </div>
-                <div class="mt-4 md:mt-0 flex flex-col gap-2">
-                    <a href="${icsUrl}" class="calendar-btn" style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 5px; text-align: center;">
-                        + Añadir al Calendario (App)
-                    </a>
-                    <a href="${googleUrl}" target="_blank" style="font-size: 0.8rem; text-decoration: underline; color: #666; text-align: center;">
-                        Abrir en Google Calendar
-                    </a>
-                </div>
+list.innerHTML = data.events.map(e => {
+    // Volvemos al link original que NO necesita a Python para funcionar
+    const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z&details=${encodeURIComponent(e.desc)}`;
+    
+    return `
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-900 pb-8">
+            <div>
+                <span class="text-blue-500 text-xs font-bold">${e.date}</span>
+                <h2 class="text-4xl font-black uppercase">${e.title}</h2>
+                <p class="text-gray-400">${e.desc}</p>
             </div>
-        `}).join('');
+            <a href="${googleUrl}" target="_blank" class="calendar-btn mt-4 md:mt-0">+ Google Calendar</a>
+        </div>
+    `;
+}).join('');
     } catch (e) {
         console.error("Error cargando datos cósmicos");
     }
