@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFE CIELO ABIERTO | Astronomía</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="intro-overlay"><div class="intro-logo">SFE / 31.63° S</div></div>
+
+    <nav>
+        <span class="location">Santa Fe / ARG</span>
+        <div class="nav-links">
+            <a href="#events">Calendario</a>
+            <a href="#subscribe">Alertas</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1 class="display-title">CIELO<br>ABIERTO</h1>
+        <div class="hero-stats">
+            <span id="moon-hero">Sincronizando...</span>
+            <p id="planet-hero">Escaneando sistema solar...</p>
+        </div>
+    </section>
+
+    <section id="events" class="section-padding">
+        <h2 class="label">Eventos en Santa Fe</h2>
+        <div id="events-list"></div>
+    </section>
+
+    <section id="subscribe" class="section-padding bg-white text-black">
+        <div class="subscribe-grid">
+            <h2 class="display-title small">ALERTAS</h2>
+            <form id="subscribe-form">
+                <input type="text" id="name" placeholder="TU NOMBRE" required>
+                <input type="email" id="email" placeholder="TU CORREO" required>
+                <button type="submit">Activar Señal</button>
+            </form>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
