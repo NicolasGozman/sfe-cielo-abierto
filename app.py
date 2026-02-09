@@ -7,7 +7,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# --- CONFIGURACIÓN DE BASE DE DATOS ---
+# Configuración de Base de Datos
 
 
 def init_db():
@@ -18,31 +18,26 @@ def init_db():
     conn.commit()
     conn.close()
 
-# --- LÓGICA DE ENVÍO DE CORREO (SMTP) ---
+# Función para enviar el mail de bienvenida
 
 
 def enviar_mail_bienvenida(destinatario, nombre):
-    # Credenciales desde variables de entorno para seguridad en Render
     remitente = os.environ.get('MAIL_USER')
     password = os.environ.get('MAIL_PASS')
 
-    contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas astronómicas de Santa Fe.\n\n¡Cielos despejados!"
+    contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas de Santa Fe.\n\n¡Cielos despejados!"
     msg = MIMEText(contenido)
     msg['Subject'] = 'SFE Cielo Abierto - Suscripción Exitosa'
     msg['From'] = remitente
     msg['To'] = destinatario
 
     try:
-        # Servidor SMTP de Gmail
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(remitente, password)
         server.sendmail(remitente, destinatario, msg.as_string())
         server.quit()
-        print(f"Correo enviado con éxito a {destinatario}")
     except Exception as e:
         print(f"Error al enviar correo: {e}")
-
-# --- RUTAS ---
 
 
 @app.route('/')
@@ -52,7 +47,6 @@ def index():
 
 @app.route('/api/astronomy')
 def get_astro_data():
-    # Datos dinámicos para Santa Fe
     return jsonify({
         "moon": {"phase": "Gibosa Creciente", "illumination": "84%"},
         "planet": {"name": "Marte", "pos": "Visible al NE"},
@@ -63,13 +57,6 @@ def get_astro_data():
                 "time_start": "200000",
                 "time_end": "220000",
                 "desc": "Evento visible desde la costanera de Santa Fe."
-            },
-            {
-                "title": "Lluvia de Meteoros",
-                "date": "20260312",
-                "time_start": "020000",
-                "time_end": "050000",
-                "desc": "Punto máximo de visibilidad en zonas rurales."
             }
         ]
     })
@@ -82,7 +69,6 @@ def subscribe():
     email = data.get('email')
 
     try:
-        # 1. Guardar en Base de Datos SQL
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute("INSERT INTO suscriptores (nombre, email, fecha) VALUES (?, ?, ?)",
@@ -90,9 +76,7 @@ def subscribe():
         conn.commit()
         conn.close()
 
-        # 2. Enviar Correo Electrónico Real
         enviar_mail_bienvenida(email, nombre)
-
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
