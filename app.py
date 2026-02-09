@@ -7,8 +7,6 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Base de Datos
-
 
 def init_db():
     conn = sqlite3.connect('database.db')
@@ -18,15 +16,12 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Envío de mail seguro
-
 
 def enviar_mail_bienvenida(destinatario, nombre):
     remitente = os.environ.get('MAIL_USER')
     password = os.environ.get('MAIL_PASS')
-    contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas astronómicas de Santa Fe."
-    msg = MIMEText(contenido)
-    msg['Subject'] = 'SFE Cielo Abierto - Suscripción Exitosa'
+    msg = MIMEText(f"Hola {nombre}, bienvenido a SFE Cielo Abierto.")
+    msg['Subject'] = 'Suscripción Exitosa'
     msg['From'] = remitente
     msg['To'] = destinatario
     try:
@@ -34,8 +29,8 @@ def enviar_mail_bienvenida(destinatario, nombre):
         server.login(remitente, password)
         server.sendmail(remitente, destinatario, msg.as_string())
         server.quit()
-    except Exception as e:
-        print(f"Error mail: {e}")
+    except:
+        pass
 
 
 @app.route('/')
@@ -47,7 +42,7 @@ def index():
 def get_astro_data():
     return jsonify({
         "moon": {"phase": "Luna Llena", "illumination": "99%"},
-        "planet": {"name": "Júpiter", "pos": "Visible al NE"},
+        "planet": {"name": "Júpiter", "pos": "Visible NE"},
         "events": [
             {
                 "title": "Conjunción Luna-Venus",
@@ -63,17 +58,14 @@ def get_astro_data():
 @app.route('/api/subscribe', methods=['POST'])
 def subscribe():
     data = request.json
-    try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO suscriptores (nombre, email, fecha) VALUES (?, ?, ?)",
-                       (data.get('nombre'), data.get('email'), datetime.now()))
-        conn.commit()
-        conn.close()
-        enviar_mail_bienvenida(data.get('email'), data.get('nombre'))
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO suscriptores (nombre, email, fecha) VALUES (?, ?, ?)",
+                   (data.get('nombre'), data.get('email'), datetime.now()))
+    conn.commit()
+    conn.close()
+    enviar_mail_bienvenida(data.get('email'), data.get('nombre'))
+    return jsonify({"status": "success"})
 
 
 if __name__ == '__main__':

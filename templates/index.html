@@ -7,35 +7,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-    <div id="intro-overlay"></div>
+<body class="bg-black text-white">
+    <div id="intro-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <span class="text-black font-black tracking-tighter text-2xl">SFE CIELO ABIERTO</span>
+    </div>
 
-    <main class="p-8">
-        <h1 class="text-6xl font-black mb-10">SFE CIELO ABIERTO</h1>
+    <main class="p-8 md:p-16">
+        <header class="mb-20">
+            <h1 id="main-title" class="text-7xl md:text-9xl font-black uppercase tracking-tighter leading-none">
+                Santa Fe<br><span class="text-blue-600">Cielo</span> Abierto
+            </h1>
+        </header>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            <div class="stat-card">
-                <p class="label">Estado Lunar</p>
-                <h3 id="moon-hero">Cargando...</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
+            <div class="stat-card border-t border-gray-800 pt-6">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Fase Lunar</p>
+                <h3 id="moon-hero" class="text-3xl font-light">Sincronizando...</h3>
             </div>
-            <div class="stat-card">
-                <p class="label">Planeta Hoy</p>
-                <h3 id="planet-hero">Cargando...</h3>
+            <div class="stat-card border-t border-gray-800 pt-6">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Planeta Destacado</p>
+                <h3 id="planet-hero" class="text-3xl font-light">Sincronizando...</h3>
             </div>
         </div>
 
-        <section id="events-list" class="space-y-12"></section>
+        <section id="events-list" class="space-y-16"></section>
 
-        <section class="form-section mt-24">
-            <h2 class="text-3xl font-bold mb-6">SUSCRIBITE AL CIELO</h2>
-            <form id="subscribe-form" class="flex flex-col md:flex-row gap-6">
-                <input type="text" id="name" placeholder="Tu nombre" required>
-                <input type="email" id="email" placeholder="Email" required>
-                <button type="submit">Activar Señal</button>
+        <section class="mt-32 border-t border-gray-900 pt-16">
+            <h2 class="text-4xl font-black mb-8 italic">SUSCRIBITE AL RADAR</h2>
+            <form id="subscribe-form" class="flex flex-col md:flex-row gap-8">
+                <input type="text" id="name" placeholder="NOMBRE" class="bg-transparent border-b border-gray-800 p-4 outline-none focus:border-white transition-colors flex-1" required>
+                <input type="email" id="email" placeholder="EMAIL" class="bg-transparent border-b border-gray-800 p-4 outline-none focus:border-white transition-colors flex-1" required>
+                <button type="submit" class="bg-white text-black px-12 py-4 font-bold hover:bg-blue-600 hover:text-white transition-all">CONECTAR</button>
             </form>
         </section>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
