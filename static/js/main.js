@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         list.innerHTML = data.events.map(e => {
             // 1. Link para el archivo ICS (Universal / Mobile App)
             // Agregamos "00" al final para los segundos que pide Python
-            const icsUrl = `/api/generate_ics?title=${encodeURIComponent(e.title)}&desc=${encodeURIComponent(e.desc)}&start=${e.date}T${e.time_start}00`;
+            // Dentro de tu .map(e => { ... })
+        const icsUrl = `/api/generate_ics?title=${encodeURIComponent(e.title)}&desc=${encodeURIComponent(e.desc)}&start=${e.date}T${e.time_start}00`;
             
             // 2. Link para Google Calendar (Navegador)
             const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&details=${encodeURIComponent(e.desc)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z`;

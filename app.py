@@ -99,29 +99,34 @@ def subscribe():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# SECCION CALENDARIO--------------------------
+
 
 @app.route('/api/generate_ics')
 def generate_ics():
     try:
         title = request.args.get('title', 'Evento Astronómico')
         desc = request.args.get('desc', '')
-        start_str = request.args.get('start')  # Recibe AAAAMMDDTHHMMSS
+        start_str = request.args.get('start')  # Formato: 20260215T200000
 
         if not start_str:
             return "Falta la fecha", 400
+
+        # Limpiamos la cadena por seguridad
+        clean_start = start_str.replace('-', '').replace(':', '').split('.')[0]
+
+        # Intentamos dos formatos: con segundos y sin segundos
+        try:
+            fecha_dt = datetime.strptime(clean_start, '%Y%m%dT%H%M%S')
+        except ValueError:
+            fecha_dt = datetime.strptime(clean_start, '%Y%m%dT%H%M')
 
         cal = Calendar()
         event = Event()
         event.add('summary', title)
         event.add('description', desc)
-
-        # Ajuste clave: Limpiamos la cadena de texto por si vienen caracteres extra
-        clean_start = start_str.split('.')[0].replace('-', '').replace(':', '')
-
-        # Formato ics
-        fecha_dt = datetime.strptime(clean_start, '%Y%m%dT%H%M%S')
         event.add('dtstart', fecha_dt)
-        event.add('dtend', fecha_dt)  # El evento dura 0 minutos por defecto
+        event.add('dtend', fecha_dt)
         event.add('location', 'Santa Fe, Argentina')
 
         cal.add_component(event)
@@ -129,12 +134,11 @@ def generate_ics():
         return Response(
             cal.to_ical(),
             mimetype="text/calendar",
-            headers={"Content-disposition": f"attachment; filename={title}.ics"}
+            headers={"Content-disposition": f"attachment; filename=evento.ics"}
         )
     except Exception as e:
-        # Esto te dirá el error exacto en los logs de Render
-        print(f"Error generando ICS: {e}")
-        return f"Error interno: {str(e)}", 500
+        print(f"Error: {e}")
+        return f"Error en el servidor: {str(e)}", 500
 
 
 if __name__ == '__main__':
