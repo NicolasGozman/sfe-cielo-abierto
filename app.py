@@ -7,7 +7,7 @@ from datetime import datetime
 from icalendar import Calendar, Event  # La herramienta para crear el archivo
 
 app = Flask(__name__)
-app = Flask(__name__)
+
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
 
@@ -118,6 +118,7 @@ def generate_ics():
         # Ajuste clave: Limpiamos la cadena de texto por si vienen caracteres extra
         clean_start = start_str.split('.')[0].replace('-', '').replace(':', '')
 
+        # Formato ics
         fecha_dt = datetime.strptime(clean_start, '%Y%m%dT%H%M%S')
         event.add('dtstart', fecha_dt)
         event.add('dtend', fecha_dt)  # El evento dura 0 minutos por defecto
