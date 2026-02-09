@@ -7,7 +7,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Configuración de Base de Datos
+# Base de Datos
 
 
 def init_db():
@@ -18,26 +18,24 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Función para enviar el mail de bienvenida
+# Envío de mail seguro
 
 
 def enviar_mail_bienvenida(destinatario, nombre):
     remitente = os.environ.get('MAIL_USER')
     password = os.environ.get('MAIL_PASS')
-
-    contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas de Santa Fe.\n\n¡Cielos despejados!"
+    contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas astronómicas de Santa Fe."
     msg = MIMEText(contenido)
     msg['Subject'] = 'SFE Cielo Abierto - Suscripción Exitosa'
     msg['From'] = remitente
     msg['To'] = destinatario
-
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(remitente, password)
         server.sendmail(remitente, destinatario, msg.as_string())
         server.quit()
     except Exception as e:
-        print(f"Error al enviar correo: {e}")
+        print(f"Error mail: {e}")
 
 
 @app.route('/')
@@ -48,15 +46,15 @@ def index():
 @app.route('/api/astronomy')
 def get_astro_data():
     return jsonify({
-        "moon": {"phase": "Gibosa Creciente", "illumination": "84%"},
-        "planet": {"name": "Marte", "pos": "Visible al NE"},
+        "moon": {"phase": "Luna Llena", "illumination": "99%"},
+        "planet": {"name": "Júpiter", "pos": "Visible al NE"},
         "events": [
             {
                 "title": "Conjunción Luna-Venus",
                 "date": "20260215",
                 "time_start": "200000",
                 "time_end": "220000",
-                "desc": "Evento visible desde la costanera de Santa Fe."
+                "desc": "Visible desde la costanera de Santa Fe."
             }
         ]
     })
@@ -65,18 +63,14 @@ def get_astro_data():
 @app.route('/api/subscribe', methods=['POST'])
 def subscribe():
     data = request.json
-    nombre = data.get('nombre')
-    email = data.get('email')
-
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute("INSERT INTO suscriptores (nombre, email, fecha) VALUES (?, ?, ?)",
-                       (nombre, email, datetime.now()))
+                       (data.get('nombre'), data.get('email'), datetime.now()))
         conn.commit()
         conn.close()
-
-        enviar_mail_bienvenida(email, nombre)
+        enviar_mail_bienvenida(data.get('email'), data.get('nombre'))
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

@@ -1,154 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SFE Cielo Abierto</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      body {
-        background-color: #050505;
-        color: white;
-        font-family: sans-serif;
-      }
-      .calendar-btn {
-        border: 1px solid #444;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        transition: 0.3s;
-      }
-      .calendar-btn:hover {
-        background: white;
-        color: black;
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      id="intro-overlay"
-      style="
-        position: fixed;
-        inset: 0;
-        background: white;
-        z-index: 50;
-        transition: 1.5s;
-      "
-    ></div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="intro-overlay"></div>
 
     <main class="p-8">
-      <h1 class="text-6xl font-black mb-10">SFE CIELO ABIERTO</h1>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-        <div class="border-t border-gray-800 pt-4">
-          <p class="text-gray-500 uppercase text-xs mb-1">Estado Lunar</p>
-          <h3 id="moon-hero" class="text-2xl font-bold italic">
-            Sincronizando...
-          </h3>
+        <h1 class="text-6xl font-black mb-10">SFE CIELO ABIERTO</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div class="stat-card">
+                <p class="label">Estado Lunar</p>
+                <h3 id="moon-hero">Cargando...</h3>
+            </div>
+            <div class="stat-card">
+                <p class="label">Planeta Hoy</p>
+                <h3 id="planet-hero">Cargando...</h3>
+            </div>
         </div>
-        <div class="border-t border-gray-800 pt-4">
-          <p class="text-gray-500 uppercase text-xs mb-1">Planeta hoy</p>
-          <h3 id="planet-hero" class="text-2xl font-bold italic">
-            Sincronizando...
-          </h3>
-        </div>
-      </div>
 
-      <section id="events-list" class="space-y-12"></section>
+        <section id="events-list" class="space-y-12"></section>
 
-      <section class="mt-24 border-t border-gray-800 pt-10 pb-20">
-        <h2 class="text-3xl font-bold mb-6 italic">SUSCRIBITE AL CIELO</h2>
-        <form id="subscribe-form" class="flex flex-col md:flex-row gap-6">
-          <input
-            type="text"
-            id="name"
-            placeholder="Tu nombre"
-            class="bg-transparent border-b border-gray-700 p-2 outline-none flex-1"
-            required
-          />
-          <input
-            type="email"
-            id="email"
-            placeholder="Email"
-            class="bg-transparent border-b border-gray-700 p-2 outline-none flex-1"
-            required
-          />
-          <button
-            type="submit"
-            class="bg-white text-black px-10 py-3 font-bold uppercase hover:invert transition duration-300"
-          >
-            Activar Señal
-          </button>
-        </form>
-      </section>
+        <section class="form-section mt-24">
+            <h2 class="text-3xl font-bold mb-6">SUSCRIBITE AL CIELO</h2>
+            <form id="subscribe-form" class="flex flex-col md:flex-row gap-6">
+                <input type="text" id="name" placeholder="Tu nombre" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <button type="submit">Activar Señal</button>
+            </form>
+        </section>
     </main>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Animación de entrada
-        setTimeout(() => {
-          document.getElementById("intro-overlay").style.transform =
-            "translateY(-100%)";
-        }, 800);
-
-        async function loadAstro() {
-          try {
-            const res = await fetch("/api/astronomy");
-            const data = await res.json();
-
-            document.getElementById("moon-hero").innerText =
-              `${data.moon.phase} (${data.moon.illumination})`;
-            document.getElementById("planet-hero").innerText =
-              `${data.planet.name} - ${data.planet.pos}`;
-
-            const list = document.getElementById("events-list");
-            list.innerHTML = data.events
-              .map((e) => {
-                // Generamos el link directo a Google Calendar
-                const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z&details=${encodeURIComponent(e.desc)}`;
-
-                return `
-                            <div class="border-b border-gray-900 pb-10 flex flex-col md:flex-row justify-between items-start md:items-center">
-                                <div>
-                                    <span class="text-blue-500 text-xs font-bold tracking-widest">${e.date}</span>
-                                    <h2 class="text-4xl font-black uppercase mt-1">${e.title}</h2>
-                                    <p class="text-gray-500 max-w-xl mt-2">${e.desc}</p>
-                                </div>
-                                <a href="${googleUrl}" target="_blank" class="calendar-btn mt-6 md:mt-0">+ Google Calendar</a>
-                            </div>
-                        `;
-              })
-              .join("");
-          } catch (err) {
-            console.error("Error cargando datos cósmicos");
-          }
-        }
-        loadAstro();
-
-        const form = document.getElementById("subscribe-form");
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const btn = form.querySelector("button");
-          btn.innerText = "CONECTANDO...";
-
-          const payload = {
-            nombre: document.getElementById("name").value,
-            email: document.getElementById("email").value,
-          };
-
-          const res = await fetch("/api/subscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (res.ok) {
-            alert("¡Señal captada! Estás suscrito.");
-            form.reset();
-          }
-          btn.innerText = "Activar Señal";
-        });
-      });
-    </script>
-  </body>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
 </html>
