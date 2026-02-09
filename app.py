@@ -1,13 +1,11 @@
 import os
-from flask import Flask, render_template, jsonify, request, Response
+from flask import Flask, render_template, jsonify, request
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
-from icalendar import Calendar, Event  # La herramienta para crear el archivo
 
 app = Flask(__name__)
-
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
 
@@ -16,7 +14,7 @@ def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS suscriptores 
-                (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT, fecha TIMESTAMP)''')
+                      (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT, fecha TIMESTAMP)''')
     conn.commit()
     conn.close()
 
@@ -24,9 +22,9 @@ def init_db():
 
 
 def enviar_mail_bienvenida(destinatario, nombre):
-    # Configura tus credenciales aquí
-    remitente = "nicolas.gozman02@gmail.com"
-    password = "npso kwuu glcp gshn"
+    # Credenciales desde variables de entorno para seguridad en Render
+    remitente = os.environ.get('MAIL_USER')
+    password = os.environ.get('MAIL_PASS')
 
     contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas astronómicas de Santa Fe.\n\n¡Cielos despejados!"
     msg = MIMEText(contenido)
@@ -61,7 +59,7 @@ def get_astro_data():
         "events": [
             {
                 "title": "Conjunción Luna-Venus",
-                "date": "20260215",  # Formato AAAAMMDD para el calendario
+                "date": "20260215",
                 "time_start": "200000",
                 "time_end": "220000",
                 "desc": "Evento visible desde la costanera de Santa Fe."
@@ -98,47 +96,6 @@ def subscribe():
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
-# SECCION CALENDARIO--------------------------
-
-
-@app.route('/api/generate_ics')
-def generate_ics():
-    try:
-        title = request.args.get('title', 'Evento Astronómico')
-        desc = request.args.get('desc', '')
-        start_str = request.args.get('start')  # Formato: 20260215T200000
-
-        if not start_str:
-            return "Falta la fecha", 400
-
-        # Limpiamos la cadena por seguridad
-        clean_start = start_str.replace('-', '').replace(':', '').split('.')[0]
-
-        # Intentamos dos formatos: con segundos y sin segundos
-        try:
-            fecha_dt = datetime.strptime(clean_start, '%Y%m%dT%H%M%S')
-        except ValueError:
-            fecha_dt = datetime.strptime(clean_start, '%Y%m%dT%H%M')
-
-        cal = Calendar()
-        event = Event()
-        event.add('summary', title)
-        event.add('description', desc)
-        event.add('dtstart', fecha_dt)
-        event.add('dtend', fecha_dt)
-        event.add('location', 'Santa Fe, Argentina')
-
-        cal.add_component(event)
-
-        return Response(
-            cal.to_ical(),
-            mimetype="text/calendar",
-            headers={"Content-disposition": f"attachment; filename=evento.ics"}
-        )
-    except Exception as e:
-        print(f"Error: {e}")
-        return f"Error en el servidor: {str(e)}", 500
 
 
 if __name__ == '__main__':
