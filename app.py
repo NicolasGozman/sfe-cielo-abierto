@@ -102,27 +102,38 @@ def subscribe():
 
 @app.route('/api/generate_ics')
 def generate_ics():
-    title = request.args.get('title', 'Evento Astronómico')
-    desc = request.args.get('desc', '')
-    start_str = request.args.get('start')  # Recibe AAAAMMDDTHHMMSS
+    try:
+        title = request.args.get('title', 'Evento Astronómico')
+        desc = request.args.get('desc', '')
+        start_str = request.args.get('start')  # Recibe AAAAMMDDTHHMMSS
 
-    cal = Calendar()
-    event = Event()
-    event.add('summary', title)
-    event.add('description', desc)
-    # Convertimos el texto en una fecha real de Python
-    event.add('dtstart', datetime.strptime(start_str, '%Y%m%dT%H%M%S'))
-    # Misma hora de fin por ahora
-    event.add('dtend', datetime.strptime(start_str, '%Y%m%dT%H%M%S'))
-    event.add('location', 'Santa Fe, Argentina')
+        if not start_str:
+            return "Falta la fecha", 400
 
-    cal.add_component(event)
+        cal = Calendar()
+        event = Event()
+        event.add('summary', title)
+        event.add('description', desc)
 
-    return Response(
-        cal.to_ical(),
-        mimetype="text/calendar",
-        headers={"Content-disposition": "attachment; filename=evento.ics"}
-    )
+        # Ajuste clave: Limpiamos la cadena de texto por si vienen caracteres extra
+        clean_start = start_str.split('.')[0].replace('-', '').replace(':', '')
+
+        fecha_dt = datetime.strptime(clean_start, '%Y%m%dT%H%M%S')
+        event.add('dtstart', fecha_dt)
+        event.add('dtend', fecha_dt)  # El evento dura 0 minutos por defecto
+        event.add('location', 'Santa Fe, Argentina')
+
+        cal.add_component(event)
+
+        return Response(
+            cal.to_ical(),
+            mimetype="text/calendar",
+            headers={"Content-disposition": f"attachment; filename={title}.ics"}
+        )
+    except Exception as e:
+        # Esto te dirá el error exacto en los logs de Render
+        print(f"Error generando ICS: {e}")
+        return f"Error interno: {str(e)}", 500
 
 
 if __name__ == '__main__':
