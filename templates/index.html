@@ -7,33 +7,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="bg-black text-white">
+<body class="bg-black text-white overflow-x-hidden">
     <div id="intro-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
-        <span class="text-black font-black tracking-tighter text-2xl">SFE CIELO ABIERTO</span>
+        <span class="text-black font-black text-2xl tracking-tighter">SFE CIELO ABIERTO</span>
     </div>
 
     <main class="p-8 md:p-16">
-        <header class="mb-20">
-            <h1 id="main-title" class="text-7xl md:text-9xl font-black uppercase tracking-tighter leading-none">
-                Santa Fe<br><span class="text-blue-600">Cielo</span> Abierto
-            </h1>
-        </header>
+        <h1 id="main-title" class="text-7xl md:text-9xl font-black uppercase tracking-tighter leading-none mb-20">
+            SANTA FE<br><span class="text-blue-600">CIELO</span> ABIERTO
+        </h1>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
             <div class="stat-card border-t border-gray-800 pt-6">
                 <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Fase Lunar</p>
-                <h3 id="moon-hero" class="text-3xl font-light">Sincronizando...</h3>
+                <h3 id="moon-hero" class="text-3xl font-light italic">Sincronizando...</h3>
             </div>
             <div class="stat-card border-t border-gray-800 pt-6">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Planeta Destacado</p>
-                <h3 id="planet-hero" class="text-3xl font-light">Sincronizando...</h3>
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Planeta Hoy</p>
+                <h3 id="planet-hero" class="text-3xl font-light italic">Sincronizando...</h3>
             </div>
         </div>
 
         <section id="events-list" class="space-y-16"></section>
 
-        <section class="mt-32 border-t border-gray-900 pt-16">
-            <h2 class="text-4xl font-black mb-8 italic">SUSCRIBITE AL RADAR</h2>
+        <section class="mt-32 border-t border-gray-900 pt-16 pb-20">
+            <h2 class="text-4xl font-black mb-8 italic">SUSCRIBITE</h2>
             <form id="subscribe-form" class="flex flex-col md:flex-row gap-8">
                 <input type="text" id="name" placeholder="NOMBRE" class="bg-transparent border-b border-gray-800 p-4 outline-none focus:border-white transition-colors flex-1" required>
                 <input type="email" id="email" placeholder="EMAIL" class="bg-transparent border-b border-gray-800 p-4 outline-none focus:border-white transition-colors flex-1" required>

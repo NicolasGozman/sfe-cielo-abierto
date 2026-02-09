@@ -20,8 +20,9 @@ def init_db():
 def enviar_mail_bienvenida(destinatario, nombre):
     remitente = os.environ.get('MAIL_USER')
     password = os.environ.get('MAIL_PASS')
-    msg = MIMEText(f"Hola {nombre}, bienvenido a SFE Cielo Abierto.")
-    msg['Subject'] = 'Suscripción Exitosa'
+    contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas de Santa Fe."
+    msg = MIMEText(contenido)
+    msg['Subject'] = 'SFE Cielo Abierto - Suscripción Exitosa'
     msg['From'] = remitente
     msg['To'] = destinatario
     try:
@@ -41,15 +42,15 @@ def index():
 @app.route('/api/astronomy')
 def get_astro_data():
     return jsonify({
-        "moon": {"phase": "Luna Llena", "illumination": "99%"},
-        "planet": {"name": "Júpiter", "pos": "Visible NE"},
+        "moon": {"phase": "Gibosa Creciente", "illumination": "84%"},
+        "planet": {"name": "Marte", "pos": "Visible al NE"},
         "events": [
             {
                 "title": "Conjunción Luna-Venus",
                 "date": "20260215",
                 "time_start": "200000",
                 "time_end": "220000",
-                "desc": "Visible desde la costanera de Santa Fe."
+                "desc": "Evento visible desde la costanera de Santa Fe."
             }
         ]
     })
