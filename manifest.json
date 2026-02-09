@@ -1,0 +1,16 @@
+{
+  "name": "SFE Cielo Abierto",
+  "short_name": "Cielo SFE",
+  "description": "Alertas astronómicas para Santa Fe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2530/2530861.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
