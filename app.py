@@ -1,10 +1,12 @@
 import os
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, Response
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
+from icalendar import Calendar, Event  # La herramienta para crear el archivo
 
+app = Flask(__name__)
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
@@ -14,7 +16,7 @@ def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS suscriptores 
-                      (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT, fecha TIMESTAMP)''')
+                (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT, fecha TIMESTAMP)''')
     conn.commit()
     conn.close()
 
@@ -22,9 +24,9 @@ def init_db():
 
 
 def enviar_mail_bienvenida(destinatario, nombre):
-    # En lugar de escribir el texto, le pedimos al servidor que lo busque en secreto
-    remitente = os.environ.get('MAIL_USER')
-    password = os.environ.get('MAIL_PASS')
+    # Configura tus credenciales aquí
+    remitente = "nicolas.gozman02@gmail.com"
+    password = "npso kwuu glcp gshn"
 
     contenido = f"Hola {nombre},\n\nGracias por conectarte a SFE Cielo Abierto. Ya estás suscrito a las alertas astronómicas de Santa Fe.\n\n¡Cielos despejados!"
     msg = MIMEText(contenido)
@@ -96,6 +98,31 @@ def subscribe():
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/generate_ics')
+def generate_ics():
+    title = request.args.get('title', 'Evento Astronómico')
+    desc = request.args.get('desc', '')
+    start_str = request.args.get('start')  # Recibe AAAAMMDDTHHMMSS
+
+    cal = Calendar()
+    event = Event()
+    event.add('summary', title)
+    event.add('description', desc)
+    # Convertimos el texto en una fecha real de Python
+    event.add('dtstart', datetime.strptime(start_str, '%Y%m%dT%H%M%S'))
+    # Misma hora de fin por ahora
+    event.add('dtend', datetime.strptime(start_str, '%Y%m%dT%H%M%S'))
+    event.add('location', 'Santa Fe, Argentina')
+
+    cal.add_component(event)
+
+    return Response(
+        cal.to_ical(),
+        mimetype="text/calendar",
+        headers={"Content-disposition": "attachment; filename=evento.ics"}
+    )
 
 
 if __name__ == '__main__':
