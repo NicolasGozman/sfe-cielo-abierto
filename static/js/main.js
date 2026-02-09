@@ -1,51 +1,71 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Animaciones GSAP iniciales
-    const tl = gsap.timeline();
-    tl.to("#intro-overlay", { yPercent: -100, duration: 1.2, delay: 0.5 });
-    tl.from("#main-title", { y: 100, opacity: 0, duration: 1, ease: "power4.out" }, "-=0.5");
-    tl.from(".stat-card", { y: 30, opacity: 0, duration: 0.8, stagger: 0.2 }, "-=0.7");
+    // 1. Quitar la cortina blanca
+    setTimeout(() => {
+        document.getElementById('intro-overlay').style.transform = 'translateY(-100%)';
+    }, 1500);
 
-    // 2. Carga de datos y Google Calendar
+    // 2. Cargar datos de la API interna
     async function loadAstro() {
+    try {
         const res = await fetch('/api/astronomy');
         const data = await res.json();
         
-        document.getElementById('moon-hero').innerText = data.moon.phase;
-        document.getElementById('planet-hero').innerText = data.planet.name;
-
+        document.getElementById('moon-hero').innerText = `${data.moon.phase} (${data.moon.illumination})`;
+        document.getElementById('planet-hero').innerText = `${data.planet.name} → ${data.planet.pos}`;
+        
         const list = document.getElementById('events-list');
         list.innerHTML = data.events.map(e => {
-            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z&details=${encodeURIComponent(e.desc)}&location=Santa+Fe,+Argentina`;
+            // Generamos un link para Google Calendar
+            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&details=${encodeURIComponent(e.desc)}&dates=20260214T200000Z/20260214T220000Z`;
             
             return `
-            <div class="event-item opacity-0 border-b border-gray-900 pb-12 flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="event-row flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
-                    <span class="text-blue-500 text-xs font-black tracking-widest">${e.date}</span>
-                    <h2 class="text-5xl font-black uppercase mt-2 tracking-tighter">${e.title}</h2>
-                    <p class="text-gray-500 mt-2 max-w-md">${e.desc}</p>
+                    <span style="color: #3b82f6; font-size: 0.7rem; font-weight: bold; letter-spacing: 0.2rem;">${e.date} 2026</span>
+                    <h2 style="font-size: clamp(1.5rem, 4vw, 3rem); font-weight: 900; text-transform: uppercase;">${e.title}</h2>
+                    <p style="color: #666; font-size: 0.9rem;">${e.desc}</p>
                 </div>
-                <a href="${googleUrl}" target="_blank" class="calendar-btn mt-6 md:mt-0 font-bold">
-                    + GOOGLE CALENDAR
-                </a>
-            </div>`;
-        }).join('');
-
-        gsap.to(".event-item", { opacity: 1, y: 0, duration: 1, stagger: 0.2, delay: 1 });
+                <div class="mt-4 md:mt-0 flex gap-4">
+                    <a href="${googleUrl}" target="_blank" class="calendar-btn">
+                        + Google Calendar
+                    </a>
+                </div>
+            </div>
+        `}).join('');
+    } catch (e) {
+        console.error("Error cargando datos cósmicos");
     }
+}
+
     loadAstro();
 
-    // 3. Formulario
-    document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
+    // 3. Formulario de Suscripción
+    const form = document.getElementById('subscribe-form');
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const btn = form.querySelector('button');
+        btn.innerText = "CONECTANDO...";
+        
         const payload = {
             nombre: document.getElementById('name').value,
             email: document.getElementById('email').value
         };
+
         const res = await fetch('/api/subscribe', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
         });
-        if (res.ok) alert("¡Conectado!");
+
+        if (res.ok) {
+            alert("¡Señal captada! Estás suscrito a las alertas de Santa Fe.");
+            form.reset();
+        }
+        btn.innerText = "Activar Señal";
     });
 });
+// Dentro de tu función loadAstro() al mapear los eventos:
+const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&details=${encodeURIComponent(e.desc)}&dates=${e.date}T${e.time_start}Z/${e.date}T${e.time_end}Z`;
+
+// Y agregá el botón en el HTML generado:
+// <a href="${googleUrl}" target="_blank" class="calendar-btn">+ Google Calendar</a>
